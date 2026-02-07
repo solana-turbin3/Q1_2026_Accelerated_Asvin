@@ -61,12 +61,13 @@ describe("whitelist-transfer-hook", () => {
   const whitelist = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from("whitelist"),
+      provider.publicKey.toBuffer(),
     ],
     program.programId
   )[0];
 
   it("Initializes the Whitelist", async () => {
-    const tx = await program.methods.initializeWhitelist()
+    const tx = await program.methods.initializeWhitelist(provider.publicKey)
       .accountsPartial({
         admin: provider.publicKey,
         whitelist,
@@ -83,22 +84,11 @@ describe("whitelist-transfer-hook", () => {
       .accountsPartial({
         admin: provider.publicKey,
         whitelist,
+        user: provider.publicKey,
       })
       .rpc();
 
     console.log("\nUser added to whitelist:", provider.publicKey.toBase58());
-    console.log("Transaction signature:", tx);
-  });
-
-  it("Remove user to whitelist", async () => {
-    const tx = await program.methods.removeFromWhitelist(provider.publicKey)
-      .accountsPartial({
-        admin: provider.publicKey,
-        whitelist,
-      })
-      .rpc();
-
-    console.log("\nUser removed from whitelist:", provider.publicKey.toBase58());
     console.log("Transaction signature:", tx);
   });
 
@@ -121,7 +111,13 @@ describe("whitelist-transfer-hook", () => {
         program.programId, // Transfer Hook Program ID
         TOKEN_2022_PROGRAM_ID,
       ),
-      createInitializeMintInstruction(mint2022.publicKey, 9, wallet.publicKey, null, TOKEN_2022_PROGRAM_ID),
+      createInitializeMintInstruction(
+        mint2022.publicKey, 
+        9, 
+        wallet.publicKey, 
+        null, 
+        TOKEN_2022_PROGRAM_ID
+      ),
     );
 
     const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer, mint2022], {
@@ -159,10 +155,22 @@ describe("whitelist-transfer-hook", () => {
         TOKEN_2022_PROGRAM_ID,
         ASSOCIATED_TOKEN_PROGRAM_ID,
       ),
-      createMintToInstruction(mint2022.publicKey, sourceTokenAccount, wallet.publicKey, amount, [], TOKEN_2022_PROGRAM_ID),
+      createMintToInstruction(
+        mint2022.publicKey, 
+        sourceTokenAccount, 
+        wallet.publicKey, 
+        amount, 
+        [], 
+        TOKEN_2022_PROGRAM_ID
+      ),
     );
 
-    const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer], { skipPreflight: true });
+    const txSig = await sendAndConfirmTransaction(
+      provider.connection, 
+      transaction, 
+      [wallet.payer], 
+      { skipPreflight: true }
+    );
 
     console.log("\nTransaction Signature: ", txSig);
   });
@@ -219,7 +227,12 @@ describe("whitelist-transfer-hook", () => {
 
     try {
       // Send the transaction
-      const txSig = await sendAndConfirmTransaction(provider.connection, transaction, [wallet.payer], { skipPreflight: false });
+      const txSig = await sendAndConfirmTransaction(
+        provider.connection, 
+        transaction, 
+        [wallet.payer], 
+        { skipPreflight: false }
+      );
       console.log("\nTransfer Signature:", txSig);
     }
     catch (error) {
@@ -232,4 +245,22 @@ describe("whitelist-transfer-hook", () => {
       }
     }
   });
+
+it("Remove user from whitelist", async () => {
+  const tx = await program.methods
+    .removeFromWhitelist(provider.publicKey)
+    .accountsPartial({
+      admin: provider.publicKey,
+      user: provider.publicKey,
+      whitelist,
+    })
+    .rpc();
+
+  console.log(
+    "\nUser removed from whitelist:",
+    provider.publicKey.toBase58(),
+  );
+  console.log("Transaction signature:", tx);
+});
+
 });

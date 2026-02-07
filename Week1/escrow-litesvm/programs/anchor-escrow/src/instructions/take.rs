@@ -3,6 +3,13 @@ use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, Toke
 
 use crate::state::Escrow;
 
+
+#[error_code]
+pub enum EscrowError {
+    #[msg("Escrow is time-locked. Must wait at least 5 days (432000 seconds) after creation.")]
+    EscrowTimeLocked,
+}
+
 //Create context
 #[derive(Accounts)]
 pub struct Take<'info> {
@@ -58,6 +65,16 @@ pub struct Take<'info> {
 //Close vault account
 impl<'info> Take<'info> {
     pub fn deposit(&mut self) -> Result<()> {
+        // Check if 5 days (432000 seconds) have passed since escrow creation
+        let current_time = Clock::get()?.unix_timestamp;
+        let time_elapsed = current_time - self.escrow.start_time;
+        let five_days_in_seconds: i64 = 5 * 24 * 60 * 60; // 432000 seconds
+        
+        require!(
+            time_elapsed >= five_days_in_seconds,
+            EscrowError::EscrowTimeLocked
+        );
+
         let cpi_program = self.token_program.to_account_info();
 
         let cpi_accounts = TransferChecked {

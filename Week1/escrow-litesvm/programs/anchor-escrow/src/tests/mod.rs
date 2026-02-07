@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
 
+    mod test; // Include the test.rs file
+
     use {
         anchor_lang::{
             prelude::msg, 
@@ -304,8 +306,27 @@ mod tests {
         assert_eq!(escrow_data.mint_b, mint_b);
         assert_eq!(escrow_data.receive, 10);
         
+        // === ADVANCE TIME BY 5 DAYS TO ALLOW TAKE ===
+        msg!("\n\n=== Advancing time by 5 days using Clock sysvar ===\n");
+        let start_time = escrow_data.start_time;
+        let five_days_in_seconds: i64 = 5 * 24 * 60 * 60; // 432,000 seconds
+        let new_time = start_time + five_days_in_seconds;
+        
+        use solana_program::clock::Clock;
+        let new_clock = Clock {
+            slot: 100000,
+            epoch_start_timestamp: new_time - 100000,
+            epoch: 0,
+            leader_schedule_epoch: 0,
+            unix_timestamp: new_time,
+        };
+        
+        program.set_sysvar(&new_clock);
+        msg!("Time advanced from {} to {}", start_time, new_time);
+        msg!("Time elapsed: {} seconds (5+ days)\n", new_time - start_time);
+        
         // Now execute the Take instruction
-        msg!("\n\n=== Executing Take Instruction ===\n");
+        msg!("\n\n=== Executing Take Instruction (after 5-day lock) ===\n");
 
         // Create the "Take" instruction to complete the escrow exchange
         let take_ix = Instruction {

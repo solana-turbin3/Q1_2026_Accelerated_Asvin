@@ -1,5 +1,4 @@
 [toolchain]
-package_manager = "yarn"
 
 [features]
 resolution = true
@@ -16,4 +15,6 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+# "-- --nocapture" allows print statements to show in terminal
+# The fisrt "--" separates cargo args from test args
+test = "cargo test -- --nocapture" 

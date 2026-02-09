@@ -16,4 +16,7 @@ pub enum WhitelistTransferHookError {
     
     #[msg("Arithmetic overflow")]  
     ArithmeticOverflow,
+
+    #[msg("Unauthorized: Only admin can perform this action")] 
+    Unauthorized,
 }

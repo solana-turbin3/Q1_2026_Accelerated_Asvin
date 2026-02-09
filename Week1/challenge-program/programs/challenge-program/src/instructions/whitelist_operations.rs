@@ -2,15 +2,14 @@ use anchor_lang::{
     prelude::*, 
 };
 
-use crate::states::whitelist::Whitelist;
 use crate::errors::WhitelistTransferHookError;
-
+use crate::states::{whitelist::Whitelist, VaultState};
 
 #[derive(Accounts)]
 pub struct WhitelistOperations<'info> {
     #[account(
         mut,
-        //address = 
+        address = vault_state.authority @ WhitelistTransferHookError::Unauthorized
     )]
     pub admin: Signer<'info>,
     #[account(
@@ -19,6 +18,11 @@ pub struct WhitelistOperations<'info> {
         bump,
     )]
     pub whitelist: Account<'info, Whitelist>,
+    #[account(
+        seeds = [b"vault_state"],
+        bump = vault_state.state_bump,
+    )]
+    pub vault_state: Account<'info, VaultState>,
     #[account(mut)]
     pub user: SystemAccount<'info>,
     pub system_program: Program<'info, System>,

@@ -81,7 +81,7 @@
     chalk "^5.4.1"
     commander "^14.0.0"
 
-"@solana/web3.js@^1.69.0":
+"@solana/web3.js@^1.69.0", "@solana/web3.js@^1.98.4":
   version "1.98.4"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.98.4.tgz#df51d78be9d865181ec5138b4e699d48e6895bbe"
   integrity sha512-vv9lfnvjUsRiq//+j5pBdXig0IQdtzA0BRZ3bXEP4KaIyF1CcaydWqgyzQgfZMNIsWNWmG+AUHwPy4AHOD6gpw==
@@ -486,6 +486,11 @@ fast-stable-stringify@^1.0.0:
   resolved "https://registry.yarnpkg.com/fast-stable-stringify/-/fast-stable-stringify-1.0.0.tgz#5c5543462b22aeeefd36d05b34e51c78cb86d313"
   integrity sha512-wpYMUmFu5f00Sm0cj2pfivpmawLZ0NKdviQ4w9zJeR8JVtOpOxHmLaJuj0vxvGqMJQWyP/COUkF75/57OKyRag==
 
+fastestsmallesttextencoderdecoder@^1.0.22:
+  version "1.0.22"
+  resolved "https://registry.yarnpkg.com/fastestsmallesttextencoderdecoder/-/fastestsmallesttextencoderdecoder-1.0.22.tgz#59b47e7b965f45258629cc6c127bf783281c5e93"
+  integrity sha512-Pb8d48e+oIuY4MaM64Cd7OW1gt4nxCHs7/ddPPZ/Ic3sg8yVGM7O9wDvZ7us6ScaUupzM+pfBolwtYhN1IxBIw==
+
 fill-range@^7.1.1:
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/fill-range/-/fill-range-7.1.1.tgz#44265d3cac07e3ea7dc247516380643754a05292"
@@ -670,6 +675,51 @@ json5@^1.0.2:
   integrity sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==
   dependencies:
     minimist "^1.2.0"
+
+litesvm-darwin-arm64@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-darwin-arm64/-/litesvm-darwin-arm64-0.5.0.tgz#c90e67810fa561b8bdccba78726c03254710cadc"
+  integrity sha512-XaY+97QvKofOqs9n4vlEtqFEsDDYjzOiAAtYjhtO0iwhleaNE/dMiFMWneeiZ66iL9jhkSpJtF1rv9IIOoXdyA==
+
+litesvm-darwin-x64@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-darwin-x64/-/litesvm-darwin-x64-0.5.0.tgz#589b3e1efd790583193365b0ced2f4f1d1b57c08"
+  integrity sha512-W3igCDMOJjG4cApeWM7mNlxuV1uXzhQG/+aq2seCtcEqsoSw32aQ+5I9uXxEpRAJzAiCkqxt+CPwauINGOs9qw==
+
+litesvm-linux-arm64-gnu@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-arm64-gnu/-/litesvm-linux-arm64-gnu-0.5.0.tgz#64a2fcdef065cc7062300a8f27e64dbb44991676"
+  integrity sha512-nBvr6fdwi6vb6lJDVqnQGA76D6wMOXXVsLUw8jK+WMeQRM2dP4tV2iZ+XwU7EhXm1TGbrnraAgG4C6xcAUKnEQ==
+
+litesvm-linux-arm64-musl@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-arm64-musl/-/litesvm-linux-arm64-musl-0.5.0.tgz#77c0e9dd959c6756318eb397cb1c047f66a322e9"
+  integrity sha512-VmFDAa1SlkjOTQOrXFlVDdCAPD8OBOWbBOy8LMGri0lhm/UrGvO14Qa2bSc0PtRrFEih6QyIZVjLTcmZnvVvPA==
+
+litesvm-linux-x64-gnu@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-x64-gnu/-/litesvm-linux-x64-gnu-0.5.0.tgz#96cb9c4783e5b09eaf0eb2c2544eb8dada5d3210"
+  integrity sha512-W8IIBVlLSBN5RkM88292TImBmYmDMgiYGecin6Qan+dRsBxUffFjRSFHgZRzJQ6X7pfhjlXI6kzuqwsZYchUHA==
+
+litesvm-linux-x64-musl@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-x64-musl/-/litesvm-linux-x64-musl-0.5.0.tgz#cb8fcf73c14cc4de1ee6acecf49e5b576378fd18"
+  integrity sha512-MECozYJjeEiuAEv04FucrFCA0ivdIxisuiK7Fxzx5uSda0W6AieuDx6rnkMXXTgEsR3PKQUA18KmHR93CN1cdw==
+
+litesvm@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm/-/litesvm-0.5.0.tgz#f5e7ceeb082fa6f9aa84e375f2b48be24bf322a5"
+  integrity sha512-lo/W4FcTdUGksuStmdGvRpB6lLRKB5qlvJdMwkGBnOzpIcApHxrvNosHmde4tk9lpWn4ICqW55OYDrSs258bXA==
+  dependencies:
+    "@solana/web3.js" "^1.98.4"
+    fastestsmallesttextencoderdecoder "^1.0.22"
+  optionalDependencies:
+    litesvm-darwin-arm64 "0.5.0"
+    litesvm-darwin-x64 "0.5.0"
+    litesvm-linux-arm64-gnu "0.5.0"
+    litesvm-linux-arm64-musl "0.5.0"
+    litesvm-linux-x64-gnu "0.5.0"
+    litesvm-linux-x64-musl "0.5.0"
 
 locate-path@^6.0.0:
   version "6.0.0"

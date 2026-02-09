@@ -3,14 +3,12 @@
 
 mod instructions;
 mod states;
-
+mod errors;
 use instructions::*;
-use states::*;
 use spl_discriminator::SplDiscriminate;
 use spl_transfer_hook_interface::{
     instruction::{
         ExecuteInstruction, 
-        InitializeExtraAccountMetaListInstruction
     },
 };
 use spl_tlv_account_resolution::state::ExtraAccountMetaList;
@@ -24,16 +22,18 @@ pub mod challenge_program {
 
     pub fn initialize_whitelist(
         ctx: Context<InitializeWhitelist>,
-        user: Pubkey
+        user: Pubkey,
+        amount: u64
     ) -> Result<()> {
-        ctx.accounts.initialize_whitelist(ctx.bumps, user)
+        ctx.accounts.initialize_whitelist(ctx.bumps, user, amount)
     }
 
     pub fn add_to_whitelist(
         ctx: Context<WhitelistOperations>, 
-        user: Pubkey
+        user: Pubkey,
+        amount: u64
     ) -> Result<()> {
-        ctx.accounts.add_to_whitelist(user)
+        ctx.accounts.add_to_whitelist(user, amount)
     }
 
     pub fn remove_from_whitelist(
@@ -43,7 +43,26 @@ pub mod challenge_program {
         ctx.accounts.remove_from_whitelist(user)
     }
 
-
+    pub fn initialize_vault(
+        ctx: Context<InitializeVault>,
+        initial_supply: u64,
+    ) -> Result<()> {
+        ctx.accounts.initialize_vault(&ctx.bumps, initial_supply)
+    }
+    pub fn deposit(
+        ctx: Context<Deposit>,
+        amount: u64,
+    ) -> Result<()> {
+        ctx.accounts.deposit(amount)
+    }
+    
+    pub fn withdraw(
+        ctx: Context<Withdraw>,
+        amount: u64,
+    ) -> Result<()> {
+        ctx.accounts.withdraw(amount)
+    }
+    
     pub fn initialize_transfer_hook(
         ctx: Context<InitializeExtraAccountMetaList>
     ) -> Result<()> {

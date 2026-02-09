@@ -16,7 +16,8 @@ use anchor_spl::{
     }
 };
 
-use crate::state::Whitelist;
+use crate::states::Whitelist;
+use crate::errors::WhitelistTransferHookError;
 
 #[derive(Accounts)]
 pub struct TransferHook<'info> {
@@ -38,16 +39,24 @@ pub struct TransferHook<'info> {
         bump
     )]
     pub extra_account_meta_list: UncheckedAccount<'info>,
+    // Source whitelist
     #[account(
-        seeds = [b"whitelist"], 
-        bump = whitelist.bump,
-    )]
-    pub whitelist: Account<'info, Whitelist>,
+        seeds = [b"whitelist", source_token.owner.key().as_ref()], 
+        bump = source_whitelist.bump,
+     )]
+    pub source_whitelist: Account<'info, Whitelist>,
+
+    // Destination whitelist
+    #[account(
+        seeds = [b"whitelist", destination_token.owner.key().as_ref()], 
+        bump = dest_whitelist.bump,
+     )]
+     pub dest_whitelist: Account<'info, Whitelist>,
 }
 
 impl<'info> TransferHook<'info> {
     /// This function is called when the transfer hook is executed.
-    pub fn transfer_hook(&mut self, _amount: u64) -> Result<()> {
+    pub fn transfer_hook(&mut self, amount: u64) -> Result<()> {
         // Fail this instruction if it is not called from within a transfer hook
         
         self.check_is_transferring()?;
@@ -55,10 +64,18 @@ impl<'info> TransferHook<'info> {
         msg!("Source token owner: {}", self.source_token.owner);
         msg!("Destination token owner: {}", self.destination_token.owner);
 
-        if self.whitelist.is_whitelisted{
-            msg!("Transfer allowed: The address is whitelisted");
-        } else {
-            panic!("TransferHook: Address is not whitelisted");
+        let source_ok = self.source_whitelist.is_whitelisted && amount <= self.source_whitelist.amount;
+        let dest_ok = self.dest_whitelist.is_whitelisted;
+        
+        require!(
+            source_ok || dest_ok, 
+            WhitelistTransferHookError::NotWhitelisted
+        );
+
+        if source_ok {
+            msg!("Transfer allowed: Source {} is whitelisted", self.source_token.owner);
+        } else if dest_ok {
+            msg!("Transfer allowed: Destination {} is whitelisted", self.destination_token.owner);
         }
 
         Ok(())

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::state::Whitelist;
+use crate::states::Whitelist;
 
 #[derive(Accounts)]
 #[instruction(user: Pubkey)]
@@ -22,13 +22,14 @@ impl<'info> InitializeWhitelist<'info> {
     pub fn initialize_whitelist(
         &mut self, 
         bumps: InitializeWhitelistBumps,
-        user: Pubkey
+        user: Pubkey,
+        amount: u64
     ) -> Result<()> {
         // Initialize the whitelist with an empty address vector
         self.whitelist.address = user.key();
         self.whitelist.bump = bumps.whitelist;
         self.whitelist.is_whitelisted = false;
-
+        self.whitelist.amount = amount;
         Ok(())
     }
 }

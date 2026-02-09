@@ -6,7 +6,6 @@ use spl_tlv_account_resolution::{
     seeds::Seed,
 };
 
-use crate::ID;
 
 #[derive(Accounts)]
 pub struct InitializeExtraAccountMetaList<'info> {
@@ -31,16 +30,36 @@ pub struct InitializeExtraAccountMetaList<'info> {
 impl<'info> InitializeExtraAccountMetaList<'info> {
     pub fn extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
         // Derive the whitelist PDA using our program ID
-        let account_meta = vec![ExtraAccountMeta::new_with_seeds(
+        let account_metas = vec![
+        // Source whitelist
+        ExtraAccountMeta::new_with_seeds(
             &[
                 Seed::Literal {
                     bytes: b"whitelist".to_vec(),
                 },
-                Seed::AccountKey { index: 3 },
+                Seed::AccountKey { index: 3 }, // owner of source token
             ],
             false, // is_signer
             false, // is_writable
-        ).unwrap()];
-        Ok(account_meta)
+        ).unwrap(),
+        
+        // Destination whitelist
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"whitelist".to_vec(),
+                },
+                Seed::AccountData {
+                    account_index: 2,  // destination token account
+                    data_index: 32,     // owner field offset in token account
+                    length: 32,         // pubkey length
+                },
+            ],
+            false, // is_signer
+            false, // is_writable
+        ).unwrap(),
+    ];
+    
+    Ok(account_metas)
     }
 }

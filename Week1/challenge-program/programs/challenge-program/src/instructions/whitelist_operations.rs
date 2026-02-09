@@ -1,9 +1,8 @@
 use anchor_lang::{
     prelude::*, 
-    system_program
 };
 
-use crate::state::whitelist::Whitelist;
+use crate::states::whitelist::Whitelist;
 use crate::errors::WhitelistTransferHookError;
 
 
@@ -26,10 +25,11 @@ pub struct WhitelistOperations<'info> {
 }
 
 impl<'info> WhitelistOperations<'info> {
-    pub fn add_to_whitelist(&mut self, user: Pubkey) -> Result<()> {
+    pub fn add_to_whitelist(&mut self, user: Pubkey, amount: u64) -> Result<()> {
         if self.whitelist.is_whitelisted {
             Err(WhitelistTransferHookError::AlreadyWhitelisted)?
         }
+        self.whitelist.amount = amount;
         self.whitelist.is_whitelisted = true;
         Ok(())
     }

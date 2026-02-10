@@ -4,6 +4,8 @@ members = [
 ]
 resolver = "2"
 
+[patch.crates-io]
+
 [profile.release]
 overflow-checks = true
 lto = "fat"

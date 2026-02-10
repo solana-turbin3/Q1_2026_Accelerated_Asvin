@@ -3,13 +3,14 @@ use anchor_spl::{
     token_interface::{
         Mint,
         TokenAccount,
-        transfer_checked,
-        TransferChecked,
+        Approve,
+        approve, 
     },
     token_2022::Token2022,
 };
 
 use crate::states::{VaultState, Whitelist};
+use crate::errors::WhitelistTransferHookError;
 
 //  DEPOSIT
 
@@ -63,26 +64,16 @@ impl<'info> Deposit<'info> {
     pub fn deposit(&mut self, amount: u64) -> Result<()> {
         msg!("User {} depositing {} tokens", self.user.key(), amount);
         
-        let cpi_accounts = TransferChecked {
-            from: self.user_token_account.to_account_info(),
-            mint: self.mint.to_account_info(),
-            to: self.vault.to_account_info(),
-            authority: self.user.to_account_info(),
-        };
+        // Only update the ledger balance
+        // would CPI back into our transfer_hook, causing reentrancy
         
-        let cpi_context = CpiContext::new(
-            self.token_program.to_account_info(),
-            cpi_accounts,
-        );
-        
-        transfer_checked(cpi_context, amount, self.mint.decimals)?;
-        
-        self.vault_state.total_deposited = self.vault_state
-            .total_deposited
+        self.whitelist.deposited_amount = self.whitelist
+            .deposited_amount
             .checked_add(amount)
             .ok_or(ProgramError::ArithmeticOverflow)?;
         
-        msg!("Deposit successful! New vault total: {}", self.vault_state.total_deposited);
+        msg!("Recorded deposit of {} tokens. New balance: {}", 
+             amount, self.whitelist.deposited_amount);
         
         Ok(())
     }
@@ -95,30 +86,19 @@ pub struct Withdraw<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     
-   
     #[account(
         seeds = [b"mint"],
         bump,
     )]
     pub mint: InterfaceAccount<'info, Mint>,
     
-   
     #[account(
         mut,
         token::mint = mint,
-        token::authority = user,
-    )]
-    pub user_token_account: InterfaceAccount<'info, TokenAccount>,
-    
-   
-    #[account(
-        mut,
-        seeds = [b"vault", mint.key().as_ref()],
-        bump = vault_state.vault_bump,
+        token::authority = vault_state,  // Vault authority
     )]
     pub vault: InterfaceAccount<'info, TokenAccount>,
     
-   
     #[account(
         mut,
         seeds = [b"vault_state"],
@@ -126,8 +106,8 @@ pub struct Withdraw<'info> {
     )]
     pub vault_state: Account<'info, VaultState>,
     
-   
     #[account(
+        mut,
         seeds = [b"whitelist", user.key().as_ref()],
         bump = whitelist.bump,
     )]
@@ -140,33 +120,42 @@ impl<'info> Withdraw<'info> {
     pub fn withdraw(&mut self, amount: u64) -> Result<()> {
         msg!("User {} withdrawing {} tokens", self.user.key(), amount);
         
+        // Check sufficient balance
+        require!(
+            self.whitelist.deposited_amount >= amount,
+            WhitelistTransferHookError::InsufficientFunds
+        );
+        
+        // Approve user as delegate on vault token account
+        // Client MUST follow this with transfer_checked in same transaction
+        // Since user is the delegate, transfer hook validates user's whitelist
         let seeds = &[
             b"vault_state".as_ref(),
             &[self.vault_state.state_bump],
         ];
         let signer_seeds = &[&seeds[..]];
 
-        let cpi_accounts = TransferChecked {
-            from: self.vault.to_account_info(),
-            mint: self.mint.to_account_info(),
-            to: self.user_token_account.to_account_info(),
-            authority: self.vault_state.to_account_info(),
-        };
+        approve(
+            CpiContext::new_with_signer(
+                self.token_program.to_account_info(),
+                Approve {
+                    to: self.vault.to_account_info(),
+                    delegate: self.user.to_account_info(),
+                    authority: self.vault_state.to_account_info(),
+                },
+                signer_seeds,
+            ),
+            amount,
+        )?;
         
-        let cpi_context = CpiContext::new_with_signer(
-            self.token_program.to_account_info(),
-            cpi_accounts,
-            signer_seeds,
-        );
-        
-        transfer_checked(cpi_context, amount, self.mint.decimals)?;
-        
-        self.vault_state.total_deposited = self.vault_state
-            .total_deposited
+        // Update ledger balance
+        self.whitelist.deposited_amount = self.whitelist
+            .deposited_amount
             .checked_sub(amount)
             .ok_or(ProgramError::ArithmeticOverflow)?;
         
-        msg!("Withdrawal successful! New vault total: {}", self.vault_state.total_deposited);
+        msg!("Approved withdrawal of {} tokens. New balance: {}", 
+             amount, self.whitelist.deposited_amount);
         
         Ok(())
     }

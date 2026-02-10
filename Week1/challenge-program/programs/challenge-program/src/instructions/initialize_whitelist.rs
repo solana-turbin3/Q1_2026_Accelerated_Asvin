@@ -29,7 +29,7 @@ impl<'info> InitializeWhitelist<'info> {
         self.whitelist.address = user.key();
         self.whitelist.bump = bumps.whitelist;
         self.whitelist.is_whitelisted = false;
-        self.whitelist.amount = amount;
+        self.whitelist.deposited_amount = 0;
         Ok(())
     }
 }

@@ -29,11 +29,10 @@ pub struct WhitelistOperations<'info> {
 }
 
 impl<'info> WhitelistOperations<'info> {
-    pub fn add_to_whitelist(&mut self, user: Pubkey, amount: u64) -> Result<()> {
+    pub fn add_to_whitelist(&mut self, user: Pubkey) -> Result<()> {
         if self.whitelist.is_whitelisted {
             Err(WhitelistTransferHookError::AlreadyWhitelisted)?
         }
-        self.whitelist.amount = amount;
         self.whitelist.is_whitelisted = true;
         Ok(())
     }

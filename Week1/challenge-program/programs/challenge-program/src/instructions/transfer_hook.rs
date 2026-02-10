@@ -64,19 +64,22 @@ impl<'info> TransferHook<'info> {
         msg!("Source token owner: {}", self.source_token.owner);
         msg!("Destination token owner: {}", self.destination_token.owner);
 
-        let source_ok = self.source_whitelist.is_whitelisted && amount <= self.source_whitelist.amount;
-        let dest_ok = self.dest_whitelist.is_whitelisted;
-        
-        require!(
-            source_ok || dest_ok, 
-            WhitelistTransferHookError::NotWhitelisted
-        );
+       // Checks if source is whitelisted
+       let source_ok = self.source_whitelist.is_whitelisted;
+       // Checks if destination is whitelisted
+       let dest_ok = self.dest_whitelist.is_whitelisted;
+       
+       // At least one party must be whitelisted
+       require!(
+           source_ok || dest_ok, 
+           WhitelistTransferHookError::NotWhitelisted
+       );
 
-        if source_ok {
-            msg!("Transfer allowed: Source {} is whitelisted", self.source_token.owner);
-        } else if dest_ok {
-            msg!("Transfer allowed: Destination {} is whitelisted", self.destination_token.owner);
-        }
+       if source_ok {
+           msg!("Transfer allowed: Source {} is whitelisted", self.source_token.owner);
+       } else if dest_ok {
+           msg!("Transfer allowed: Destination {} is whitelisted", self.destination_token.owner);
+       }
 
         Ok(())
     }

@@ -31,9 +31,8 @@ pub mod challenge_program {
     pub fn add_to_whitelist(
         ctx: Context<WhitelistOperations>, 
         user: Pubkey,
-        amount: u64
     ) -> Result<()> {
-        ctx.accounts.add_to_whitelist(user, amount)
+        ctx.accounts.add_to_whitelist(user)
     }
 
     pub fn remove_from_whitelist(
